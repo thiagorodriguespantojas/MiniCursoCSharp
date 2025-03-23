@@ -4,7 +4,6 @@ using MIniCursoCSharp.Communication.Requests;
 using MIniCursoCSharp.Communication.Responses;
 
 namespace MiniCursoCSharp.API.Controllers
-
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -27,7 +26,9 @@ namespace MiniCursoCSharp.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorMessagesJson([ex.Message]));
+                var errors = ex.GetBaseException().Message;
+                ex.GetBaseException();
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorMessagesJson(new List<string> { ex.Message }));
             }
         }
 
@@ -64,17 +65,29 @@ namespace MiniCursoCSharp.API.Controllers
             return new ResponseClientJson
             {
                 Id = Guid.NewGuid(),
-                Name = request.Name
+                Name = request.Name,
+                Email = request.Email,
+                Phone = request.Phone
             };
         }
     }
-    public class ResponseErrorMessagesJson
+    public class ResponseErrorMessagesJson(List<string> errors)
     {
-        public List<string> Errors { get; private set; }
-
-        public ResponseErrorMessagesJson(List<string> errors)
-        {
-            Errors = errors;
-        }
+        public List<string> Errors { get; private set; } = errors;
     }
+}
+
+public class ResponseClientJson
+{
+    public Guid Id { get; set; }
+    public required string Name { get; set; }
+    public required string Email { get; set; }
+    public required string Phone { get; set; }
+}
+
+public class RequestClientJson
+{
+    public required string Name { get; set; }
+    public required string Email { get; set; }
+    public string? Phone { get; internal set; }
 }

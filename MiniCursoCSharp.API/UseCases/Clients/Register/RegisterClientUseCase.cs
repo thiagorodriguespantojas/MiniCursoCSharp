@@ -1,4 +1,5 @@
-﻿using MIniCursoCSharp.Communication.Requests;
+﻿using MiniCursoCSharp.Exceptions.ExceptionsBase;
+using MIniCursoCSharp.Communication.Requests;
 using MIniCursoCSharp.Communication.Responses;
 
 namespace MiniCursoCSharp.API.UseCases.Clients.Register
@@ -13,6 +14,10 @@ namespace MiniCursoCSharp.API.UseCases.Clients.Register
 
             if (!result.IsValid == false)
             {
+                var errors = result.Errors.Select(error => error.ErrorMessage).ToList();
+
+                throw new ErrorOnValidationException(string.Join(", ", errors));
+
                 throw new DivideByZeroException("Erro ao validar os dados do cliente");
             }
 
